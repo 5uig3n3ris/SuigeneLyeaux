@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta description ="Portfolio of a creative developer passionate about games, finance, and web technologies.">
+  <title>SuigeneLyeaux</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header class="hero">
+    <div class="overlay"></div>
+    <div class="hero-content">
+      
+      <fieldset>
+  <legend>Theme Settings</legend>
+  <label for="theme-select">Switch Theme:</label>
+  <select id="theme-select">
+    <option>Light</option>
+    <option>Dark</option>
+    <option>Lyeaux</option>
+  </select>
+  <button value = "navigate">Go to Theme Page</button>
+</fieldset>
+
+      <h1>Build silently. Grow steadily. Deliver smartly.</h1>
+      <p>A thoughtful developer crafting smart solutions with clarity and care.</p>
+      <div class="cta">
+        <a href="codeplayground.html">Start a Project</a>
+        <a href="projects.html">See Our Work</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="about">
+    <h2>What Drives Me</h2>
+    <p>I don’t just build tech—I craft ideas into reality. It’s a creative partnership where strategy meets execution.
+    I'm a developer focused on building clean, responsive, and meaningful digital experiences. My projects often revolve around interactive learning tools, finance dashboards, and web-based games. I'm continuously exploring new tech — from Firebase to React, from data viz to command-line tools.</p>
+  </section>
+
+  <section class="services">
+    <h2>What I Build</h2>
+    <div class="service-grid">
+      <div class="card">Custom Tech Solutions</div>
+      <div class="card">Smart Web Apps</div>
+      <div class="card">Quiet Automation</div>
+      <div class="card">Digital Infrastructure</div>
+    </div>
+  </section>
+
+  <section class="approach">
+    <h2>The OrrynForge Way</h2>
+    <ul>
+      <li>Strategic Thinking</li>
+      <li>Creative Craftsmanship</li>
+      <li>Steady Growth</li>
+      <li>Smart Systems</li>
+    </ul>
+  </section>
+
+  <section class="projects">
+    <h2>Work That Speaks Quietly</h2>
+    <div class="project-grid">
+      <div class="project-thumb">
+        <h3>Student Spending Dashboard</h3>
+        <a href="#">View Project</a>
+      </div>
+      <div class="project-thumb">
+          <h3>Multiplayer Mind match game</h3>
+          <a href ="#">View project</a>
+      </div>
+      <div class="project-thumb">
+           <h3>Movie Finder(CLI tool)</h3>
+           <a href ="#">View Project</a>
+      </div>
+    </div>
+  </section>
+  
+  <section id="blogs" class="blogs">
+    <h2>Blog</h2>
+    <article class="blog-post">
+      <h3>How I Built My First Web App</h3>
+      <p><small>Posted on May 10, 2025</small></p>
+      <p>A quick overview of the tools and steps I used to build my first full-stack application...</p>
+      <a href="blog.html">Read More</a>
+    </article>
+    <!-- more blog posts go here -->
+  </section>
+  
+      <section id="contact" class="contact">
+      <h2>Contact</h2>
+      <p>Feel free to reach out — I’m always up for a meaningful collaboration or a tech chat.</p>
+  <div class="contact-cta">
+    <div class="contact-item">
+      <strong>Email:</strong> <a href="mailto: leosuigeneris@gmail.com">@gmail</a>
+    </div>
+    <div class="contact-item">
+      <strong>LinkedIn:</strong> <a href="#" target="_blank">my LinkedIn</a>
+    </div>
+    <div class="contact-item">
+      <strong>GitHub:</strong> <a href="#" target="_blank">my GitHub</a>
+    </div>
+  </div>
+</section>
+
+
+  <footer>
+  <p>© <span id="year"></span> OrrynForge | Quietly crafting the future</p>
+</footer>
+
+<script>
+
+function handleThemeChange(value) {
+  switch(value) {
+    case "light":
+      applyTheme('light');
+      break;
+    case "dark":
+      applyTheme('dark');
+      break;
+    case "lyeaux":
+      applyTheme('lyeaux');
+      break;
+    case "navigate":
+      window.location.href = "themes.html";
+      break;
+  }
+}
+
+function applyTheme(theme) {
+  document.body.className = ''; // Reset existing classes
+  document.body.classList.add(theme); // Assume CSS classes for themes are defined
+}
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+  </html>
+  
