@@ -16,6 +16,7 @@ const postRoutes = require('./Routes/postsRoute');
 const commentRoutes = require('./Routes/commentRoutes');
 const bookmarkRoutes = require('./Routes/bookmarkRoutes');
 const likeRoutes = require('./Routes/likeRoutes');
+const tagCategoryRoutes = require('./Routes/tagCategoryRoutes');
 
 
 
@@ -25,6 +26,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/bookmarks', bookmarkRoutes);
 app.use('/api/likes', likeRoutes);
+app.use('/api/meta', tagCategoryRoutes);
 
 
 
