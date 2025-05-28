@@ -11,11 +11,11 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-const authRoutes = require('./routes/authRoutes');
-const postRoutes = require('./routes/postsRoute');
-const commentRoutes = require('./routes/commentRoutes');
-const bookmarkRoutes = require('./routes/bookmarkRoutes');
-const likeRoutes = require('./routes/likeRoutes');
+const authRoutes = require('./Routes/authRoutes');
+const postRoutes = require('./Routes/postsRoute');
+const commentRoutes = require('./Routes/commentRoutes');
+const bookmarkRoutes = require('./Routes/bookmarkRoutes');
+const likeRoutes = require('./Routes/likeRoutes');
 
 
 
