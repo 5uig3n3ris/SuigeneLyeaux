@@ -15,6 +15,8 @@ const authRoutes = require('./routes/authRoutes');
 const postRoutes = require('./routes/postsRoute');
 const commentRoutes = require('./routes/commentRoutes');
 const bookmarkRoutes = require('./routes/bookmarkRoutes');
+const likeRoutes = require('./routes/likeRoutes');
+
 
 
 //middlewares
@@ -22,6 +24,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/bookmarks', bookmarkRoutes);
+app.use('/api/likes', likeRoutes);
+
 
 
 
