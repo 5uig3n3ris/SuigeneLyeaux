@@ -13,9 +13,13 @@ app.use(express.json());
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const postRoutes = require('./routes/postsRoute');
+const commentRoutes = require('./routes/commentRoutes');
 
+//middlewares
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/comments', commentRoutes);
+
 
 // Start the server
 const PORT = process.env.PORT || 5000;
