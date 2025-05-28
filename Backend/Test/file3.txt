@@ -1,3 +1,0 @@
-const bookmarkRoutes = require('./routes/bookmarkRoutes');
-app.use('/api/bookmarks', bookmarkRoutes);
-app.use('/api/comments', commentRoutes);
