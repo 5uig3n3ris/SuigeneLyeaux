@@ -4,8 +4,8 @@ const {
   createComment,
   getCommentsByPostId,
   deleteComment,
-} = require('../controllers/commentController');
-const authenticate = require('../middleware/authMiddleware');
+} = require('../Controllers/commentController');
+const authenticate = require('../Middleware/authMiddleware');
 
 // Create a comment on a post
 router.post('/:postId', authenticate, createComment);
