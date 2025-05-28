@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blog with Tags, Categories & Search</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #111; color: #eee; }
+    #searchBar { margin-bottom: 20px; padding: 10px; width: 100%; font-size: 1rem; border-radius: 6px; border: none; }
+    #editorPanel { display: none; margin-bottom: 30px; background: #222; padding: 20px; border-radius: 8px; }
+    #editorPanel input, #editorPanel select, #editorPanel textarea {
+      width: 100%; margin-bottom: 15px; padding: 8px; font-size: 1rem; border-radius: 4px; border: none; background: #333; color: #eee;
+    }
+    #posts { display: flex; flex-direction: column; gap: 20px; }
+    .post { background: #222; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px #00ffff88; }
+    .post h2 { margin: 0 0 10px; }
+    .post-card { border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    .category, .tags, .status {padding: 10px 20px; margin-top: 8px; font-size: 0.9em; color: #555; }
+    #admin-panel { margin-top: 40px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background: #f5f5f5;}
+    .tag {
+      background: #004466; padding: 3px 8px; border-radius: 12px; margin-right: 8px;
+      display: inline-block;
+    }
+    .category { font-weight: bold; }
+    button {
+      background: #00ffff; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;
+      font-weight: bold; color: #111; transition: background 0.3s ease;
+    }
+    button:hover { background: #00cccc; }
+    #editorToggle { margin-bottom: 20px; }
+    .preview-container { background: #1e1e1e; padding: 15px; border-radius: 6px; margin-top: 10px; }
+  </style>
+
+  <!-- Marked.js for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Highlight.js for syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <!--html2pdf.js for exporting to pdf-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+</head>
+<body>
+
+  <button id="editorToggle">Open Editor (Password Protected)</button>
+
+  <input type="text" id="searchBar" placeholder="Search by title, content, tags or category..." />
+
+  <div id="editorPanel">
+    <input type="text" id="blogTitle" placeholder="Blog Title" />
+    <textarea id="blogContent" rows="8" placeholder="Write your blog post in Markdown..."></textarea>
+    <input type="datetime-local" id="schedule-input" placeholder="Schedule Publish Time">
+
+    <!-- Preview area -->
+    <div id="markdown-preview" class="preview-container"></div>
+    
+    <!-- Blog Post Manager -->
+<div id = "Admin-panel">
+<h2>Saved Blog Posts</h2>
+<table id="posts-table">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Tags</th>
+      <th>Category</th>
+      <th>Scheduled Time</th>
+      <th>Actions</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="posts-list"></tbody>
+</table>
+</div>
+    
+     <!-- AI Assistant -->
+  <details>
+    <summary>AI Assistant</summary>
+    <button id="suggest-title">Suggest Title</button>
+    <button id="summarize-post">Summarize</button>
+    <div id="ai-output"></div>
+  </details>
+
+    <input type="text" id="blogTags" placeholder="Tags (comma separated, e.g. AI,WebDev)" />
+    <select id="blogCategory">
+      <option value="" disabled selected>Select Category</option>
+      <option value="Tech">Tech</option>
+      <option value="Lifestyle">Lifestyle</option>
+      <option value="Tutorials">Tutorials</option>
+      <option value="News">News</option>
+    </select>
+<select id="status-select">
+  <option value = "" disabled selected>draft/publish</option>
+  <option value="draft">Draft</option>
+  <option value="published">Published</option>
+</select>
+
+    <button id="savePostBtn">Save Post</button>
+    <button id="save-draft">Save Draft</button>
+    <button id="export-md">Export to .md</button>
+    <button id="export-html">Export to .html</button>
+    <button id="export-pdf">Export to PDF</button>
+    
+    <button id="clearEditorBtn">Clear Editor</button>
+  </div>
+
+  <div id="posts"></div>
+  
+   <h1>Blog Posts</h1>
+  <input type="text" id="postsSearchBar" placeholder="Search posts...">
+  <div id="posts-container"></div>
+
+  <script>
+    const editorToggleBtn = document.getElementById('editorToggle');
+    const editorPanel = document.getElementById('editorPanel');
+    const searchBar = document.getElementById('searchBar');
+    const postsContainer = document.getElementById('posts');
+
+    const blogTitleInput = document.getElementById('blogTitle');
+    const blogContentInput = document.getElementById('blogContent');
+    const blogTagsInput = document.getElementById('blogTags');
+    const blogCategorySelect = document.getElementById('blogCategory');
+    const savePostBtn = document.getElementById('savePostBtn');
+    const clearEditorBtn = document.getElementById('clearEditorBtn');
+
+    const previewArea = document.getElementById('markdown-preview');
+
+    marked.setOptions({
+      highlight: function (code, lang) {
+        return hljs.highlightAuto(code, [lang]).value;
+      },
+      breaks: true
+    });
+
+    blogContentInput.addEventListener('input', () => {
+      const markdown = blogContentInput.value;
+      const html = marked.parse(markdown);
+      previewArea.innerHTML = html;
+      document.querySelectorAll('pre code').forEach(block => {
+        hljs.highlightElement(block);
+      });
+    });
+
+    editorToggleBtn.addEventListener('click', () => {
+      const pwd = prompt('Enter editor password:');
+      if (pwd === 'mypassword') {
+        const isVisible = editorPanel.style.display === 'block';
+        editorPanel.style.display = isVisible ? 'none' : 'block';
+        editorToggleBtn.textContent = isVisible ? 'Open Editor (Password Protected)' : 'Close Editor';
+      } else {
+        alert('Incorrect password!');
+      }
+    });
+    
+    function loadPosts() {
+      return             JSON.parse(localStorage.getItem('blogPosts') || '[]');
+}
+
+
+
+    function savePosts(posts) {
+      localStorage.setItem('blogPosts', JSON.stringify(posts));
+    }
+
+    function renderPosts(filter = '') {
+      const posts = loadPosts();
+      const filterLower = filter.toLowerCase();
+      const filtered = posts.filter(post => {
+        const combined = (post.title + ' ' + post.content + ' ' + post.tags.join(' ') + ' ' + post.category).toLowerCase();
+        return combined.includes(filterLower);
+      });
+
+      postsContainer.innerHTML = filtered.length
+        ? filtered.map(post => `
+          <div class="post">
+            <h2>${post.title}</h2>
+            <div>${marked.parse(post.content)}</div>
+            <div class="category">Category: ${post.category || 'Uncategorized'}</div>
+            <div class="tags">Tags: ${post.tags.map(t => `<span class="tag">${t}</span>`).join(' ')}</div>
+          </div>
+        `).join('')
+        : '<p>No posts found.</p>';
+    }
+
+    savePostBtn.addEventListener('click', () => {
+      const title = blogTitleInput.value.trim();
+      const content = blogContentInput.value.trim();
+      const tags = blogTagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
+      const category = blogCategorySelect.value;
+
+      if (!title || !content || !category) {
+        alert('Title, category  and content are required!');
+        return;
+      }
+      
+      let editIndex = null;
+      const posts = loadPosts();
+const status = document.getElementById('status-select').value;
+
+       if (editIndex !== null) {
+  posts[editIndex] = { title, content, tags, category, status };
+}     else {
+  posts.unshift({ title, content, tags, category, status });
+}
+
+       savePosts(posts);
+       renderPosts();
+       alert('Post saved!');
+       clearEditor();
+    });
+
+    function clearEditor() {
+      blogTitleInput.value = '';
+      blogContentInput.value = '';
+      blogTagsInput.value = '';
+      blogCategorySelect.value = '';
+      previewArea.innerHTML = '';
+    }
+
+    clearEditorBtn.addEventListener('click', clearEditor);
+
+    searchBar.addEventListener('input', e => {
+      renderPosts(e.target.value);
+    });
+ 
+  // Auto-Save to LocalStorage every 5 seconds
+setInterval(() => {
+  const draft = {
+    title: document.getElementById('blogTitle').value,
+    tags: document.getElementById('blogTags').value,
+    category: document.getElementById('blogCategory').value,
+    markdown: blogContent.value,
+    schedule: document.getElementById('schedule-input').value
+  };
+  localStorage.setItem('blogDraft', JSON.stringify(draft));
+}, 5000);
+
+// Load saved draft on page load
+window.addEventListener('load', () => {
+  const saved = JSON.parse(localStorage.getItem('blogDraft'));
+  if (saved) {
+    document.getElementById('blogTitle').value = saved.title || '';
+    document.getElementById('blogTags').value = saved.tags || '';
+    document.getElementById('blogCategory').value = saved.category || '';
+    blogContentInput.value = saved.markdown || '';
+    document.getElementById('schedule-input').value = saved.schedule || '';
+    blogContentInput.dispatchEvent(new Event('input')); // trigger preview
+  }
+});  
+    
+    
+    // Save Draft (LocalStorage)
+  document.getElementById('save-draft').addEventListener('click', () => {
+    const post = {
+      title: document.getElementById('blogTitle').value,
+      tags: document.getElementById('blogTags').value,
+      category: document.getElementById('blogCategory').value,
+      content: blogContentInput.value,
+      schedule: document.getElementById('schedule-input').value
+    };
+    const posts = JSON.parse(localStorage.getItem('blogPosts') || '[]');
+    posts.push(post);
+    localStorage.setItem('blogPosts', JSON.stringify(posts));
+    renderPosts();
+    alert('Post saved!');
+  });
+  
+  
+  // Export Markdown
+  document.getElementById('export-md').addEventListener('click', () => {
+    const title = document.getElementById('blogTitle').value || 'untitled';
+    const blob = new Blob([blogContentInput.value], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/\s+/g, '_')}.md`;
+    a.click();
+  });
+  
+ //Export to html
+  document.getElementById('export-html').addEventListener('click', () => {
+  const title = document.getElementById('blogTitle').value || 'untitled';
+  const htmlContent = previewArea.innerHTML;
+  const fullHTML = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>${title}</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+      <style>
+        body { font-family: sans-serif; padding: 2rem; background: #111; color: #eee; }
+        pre { background: #222; padding: 1rem; border-radius: 5px; }
+      </style>
+    </head>
+    <body>
+      <h1>${title}</h1>
+      ${htmlContent}
+    </body>
+    </html>
+  `;
+  const blob = new Blob([fullHTML], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${title.replace(/\s+/g, '_')}.html`;
+  a.click();
+});
+
+//Export to pdf
+
+document.getElementById('export-pdf').addEventListener('click', () => {
+  const title = document.getElementById('blogTitle').value || 'untitled';
+  const opt = {
+    margin:       0.5,
+    filename:     `${title.replace(/\s+/g, '_')}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2 },
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+  const content = document.createElement('div');
+  content.innerHTML = `<h1>${title}</h1>` + previewArea.innerHTML;
+  html2pdf().from(content).set(opt).save();
+});
+
+//Display posts in cards
+  function renderPostCards(filter = '') {
+      const posts = loadPosts();
+      const filtered = posts.filter(post => {
+        const combined = (post.title + ' ' + post.content + ' ' + post.tags.join(' ') + ' ' + post.category).toLowerCase();
+        return combined.includes(filter.toLowerCase());
+      });
+
+      postsContainer.innerHTML = filtered.length
+        ? filtered.map(post => `
+          <div class="post-card">
+            <h2>${post.title}</h2>
+            <div>${marked.parse(post.content)}</div>
+            <div class="category">Category: ${post.category || 'Uncategorized'}</div>
+            <div class="tags">Tags: ${post.tags.map(tag => `<span class="tag">${tag}</span>`).join(' ')}</div>
+            <div class="status">Status: ${post.status || 'Draft'}</div>
+          </div>
+        `).join('')
+        : '<p>No posts found.</p>';
+    }
+
+//Display posts in table
+    function renderPostTable() {
+      const posts = loadPosts();
+      const list = document.getElementById('posts-list');
+      list.innerHTML = '';
+      posts.forEach((post, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${post.title}</td>
+          <td>${post.tags.join(', ')}</td>
+          <td>${post.category}</td>
+          <td>${post.status || 'Draft'}</td>
+          <td>${post.schedule || '-'}</td>
+          <td>
+            <button onclick="loadPost(${index})">Load</button>
+            <button onclick="deletePost(${index})">Delete</button>
+          </td>
+        `;
+        list.appendChild(row);
+      });
+    }
+    
+    //Edit posts
+    function editPost(index) {
+      const post = getPosts()[index];
+      document.getElementById('blogTitle').value = post.title;
+      blogContent.value = post.content;
+      document.getElementById('blogTags').value = post.tags.join(', ');
+      document.getElementById('blogCategory').value = post.category;
+      document.getElementById('statusSelect').value = post.status;
+      document.getElementById('scheduleInput').value = post.schedule;
+      blogContent.dispatchEvent(new Event('input'));
+      editorPanel.style.display = 'block';
+      editIndex = index;
+    }
+    
+    //Delete posts
+window.deletePost = function(index) {
+  const posts = loadPosts();
+  posts.splice(index, 1);
+  savePosts(posts);
+  renderPosts();
+};
+
+//Load posts
+function loadPost(index) {
+  const posts = loadPosts();
+  const post = posts[index];
+  document.getElementById('blogTitle').value = post.title;
+  document.getElementById('blogTags').value = post.tags.join(', ');
+  document.getElementById('blogCategory').value = post.category;
+  blogContent.value = post.content;
+  document.getElementById('schedule-input').value = post.schedule;
+  blogContent.dispatchEvent(new Event('input'));
+  document.getElementById('status-select').value = post.status || 'draft';
+  
+}
+
+postsSearchBar.addEventListener('input', e => {
+      renderPostCards(e.target.value);
+    });
+    
+    // AI Assistant (Mock)
+  document.getElementById('suggest-title').addEventListener('click', () => {
+    const text = blogContentInput.value;
+    const suggestion = text.length > 10 ? "Suggested Title: " + text.split(" ").slice(0, 5).join(" ") + "..." : "Write more to get a title.";
+    document.getElementById('ai-output').innerText = suggestion;
+  });
+
+  document.getElementById('summarize-post').addEventListener('click', () => {
+    const text = blogContentInput.value;
+    const summary = text.length > 20 ? "Summary: " + text.slice(0, 100) + "..." : "Write more to get a summary.";
+    document.getElementById('ai-output').innerText = summary;
+  });
+  
+ renderPostCards();
+ renderPostTable();
+  </script>
+</body>
+</html>
