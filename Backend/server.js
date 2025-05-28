@@ -1,13 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db'); // Only if you're using a custom connectDB function
 
 // Load environment variables
 dotenv.config();
-
-// Connect to the database (optional if using Pool directly in models)
-connectDB?.();
 
 const app = express();
 app.use(cors());
