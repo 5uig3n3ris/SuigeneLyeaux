@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Code Playground</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      font-family: sans-serif;
+    }
+    header {
+      padding: 10px;
+      background: #2c3e50;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    main {
+      display: flex;
+      flex: 1;
+    }
+    .editor {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #ccc;
+      overflow: auto;
+    }
+    .pane {
+      flex: 1;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+    }
+    .pane label {
+      font-weight: bold;
+    }
+    .pane textarea {
+      flex: 1;
+      resize: none;
+      margin-top: 5px;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 10px;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .controls {
+      padding: 10px;
+      background: #ecf0f1;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-start;
+    }
+    button {
+      padding: 5px 12px;
+      border: none;
+      background: #3498db;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    .output {
+      width: 50%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>Multi-Pane Code Playground</h2>
+    <div class="controls">
+      <button onclick="runCode()">Run</button>
+      <button onclick="resetCode()">Reset</button>
+      <button onclick="saveSnippet()">Save</button>
+      <button onclick="loadSnippet()">Load</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="editor">
+      <div class="pane">
+        <label>HTML</label>
+        <textarea id="html-code">&lt;h1&gt;Hello World&lt;/h1&gt;</textarea>
+      </div>
+      <div class="pane">
+        <label>CSS</label>
+        <textarea id="css-code">h1 { color: darkblue; }</textarea>
+      </div>
+      <div class="pane">
+        <label>JavaScript</label>
+        <textarea id="js-code">console.log("Hello from JS!");</textarea>
+      </div>
+    </div>
+    <div class="output">
+      <iframe id="preview"></iframe>
+    </div>
+  </main>
+
+  <script>
+    function runCode() {
+      const html = document.getElementById("html-code").value;
+      const css = `<style>${document.getElementById("css-code").value}</style>`;
+      const js = `<script>${document.getElementById("js-code").value}<\/script>`;
+
+      const iframe = document.getElementById("preview");
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open();
+      doc.write(html + css + js);
+      doc.close();
+    }
+
+    function resetCode() {
+      document.getElementById("html-code").value = "<h1>Hello World</h1>";
+      document.getElementById("css-code").value = "h1 { color: darkblue; }";
+      document.getElementById("js-code").value = 'console.log("Hello from JS!");';
+      runCode();
+    }
+
+    function saveSnippet() {
+      const snippet = {
+        html: document.getElementById("html-code").value,
+        css: document.getElementById("css-code").value,
+        js: document.getElementById("js-code").value
+      };
+      localStorage.setItem("codeSnippet", JSON.stringify(snippet));
+      alert("Snippet saved locally!");
+    }
+
+    function loadSnippet() {
+      const snippet = JSON.parse(localStorage.getItem("codeSnippet"));
+      if (snippet) {
+        document.getElementById("html-code").value = snippet.html;
+        document.getElementById("css-code").value = snippet.css;
+        document.getElementById("js-code").value = snippet.js;
+        runCode();
+      } else {
+        alert("No saved snippet found.");
+      }
+    }
+
+    // Auto-run on load
+    window.onload = runCode;
+  </script>
+</body>
+</html>
