@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta description ="Portfolio of a creative developer passionate about games, finance, and web technologies.">
   <title>SuigeneLyeaux</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <link rel="stylesheet" href="./styles.css"/>
 </head>
 <body>
   <header class="hero">
@@ -26,8 +26,8 @@
       <h1>Build silently. Grow steadily. Deliver smartly.</h1>
       <p>A thoughtful developer crafting smart solutions with clarity and care.</p>
       <div class="cta">
-        <a href="codeplayground.html">Start a Project</a>
-        <a href="projects.html">See Our Work</a>
+        <a href="./codeplayground.html">Start a Project</a>
+        <a href="./projects.html">See Our Work</a>
       </div>
     </div>
   </header>
@@ -109,7 +109,7 @@
 </footer>
 
 <script>
-
+document.addEventListener("DOMContentLoaded"), () => {
 function handleThemeChange(value) {
   switch(value) {
     case "light":
@@ -133,6 +133,7 @@ function applyTheme(theme) {
 }
 
   document.getElementById("year").textContent = new Date().getFullYear();
+});
 </script>
 
 </body>
